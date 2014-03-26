@@ -4,6 +4,9 @@
 #include <QtGui>
 #include <QWidget>
 #include <QVector>
+#include <QListWidgetItem>
+#include <QLabel>
+#include <QPushButton>
 
 #include "frame.h"
 

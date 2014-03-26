@@ -1,5 +1,10 @@
 #include <QtGui>
 #include <QDir>
+#include <QVBoxLayout>
+#include <QVBoxLayout>
+#include <QScrollArea>
+#include <QMessageBox>
+#include <QFileDialog>
 
 #include <cstdlib>
 
@@ -264,7 +269,7 @@ Application::updateCountLabel()
 void
 Application::nextImage()
 {
-    bboxes_[filenames_[fileInd_]] = area_->getBboxes();
+    saveBboxes();
     fileInd_ = min(fileInd_ + 1, filenames_.size() - 1);
     updateCountLabel();
     toggleButtons();
@@ -275,7 +280,7 @@ Application::nextImage()
 void
 Application::prevImage()
 {
-    bboxes_[filenames_[fileInd_]] = area_->getBboxes();
+    saveBboxes();
     fileInd_ = max(fileInd_ - 1, 0);
     updateCountLabel();
     toggleButtons();

@@ -4,19 +4,26 @@
 using std::max;
 using std::min;
 
-ImageArea::ImageArea(const QString &filename) : activeFrame_(nullptr)
+ImageArea::ImageArea() : activeFrame_(nullptr), state(0)
+{
+    setMouseTracking(true);
+}
+
+ImageArea::~ImageArea()
+{
+}
+
+bool
+ImageArea::openImage(const QString &filename)
 {
     QImage img(filename);
     if (img.isNull()) {
-        return;
+        return false;
     }
     img_ = img;
-    setMinimumSize(img.width(), img.height());
-    setMouseTracking(true);
+    setMinimumSize(img_.width(), img_.height());
     update();
-}
-ImageArea::~ImageArea()
-{
+    return true;
 }
 
 void ImageArea::paintEvent(QPaintEvent *event)
@@ -38,9 +45,15 @@ void ImageArea::mousePressEvent(QMouseEvent *event)
     int ind = findFrame(curX, curY);
 
     if (event->button() == Qt::RightButton && ind != -1) {
+        if (activeFrame_ == frames_[ind])
+            activeFrame_ = nullptr;
+
         delete frames_[ind];
         frames_.erase(&frames_[ind]);
     } else if (event->button() == Qt::LeftButton) {
+        if (activeFrame_ != nullptr)
+            activeFrame_->deactivate();
+
         if (ind == -1) {
             activeFrame_ = new Frame(this);
             activeFrame_->setGeometry(curX, curY, 0, 0);
@@ -52,12 +65,18 @@ void ImageArea::mousePressEvent(QMouseEvent *event)
             state = FrameAction::XYResize;
             fromX_ = curX;
             fromY_ = curY;
+
+            emit frameAdded();
         } else {
             activeFrame_ = frames_[ind];
             state = computeActionAndSetCursor(curX, curY, frames_[ind]);
         }
+        activeFrame_->activate();
+        emit frameActivated(activeFrame_);
+    } else if (event->button() == Qt::MidButton) {
+        qDebug() << frames_.size();
     }
-    emit frameAdded();
+
 }
 
 void ImageArea::mouseMoveEvent(QMouseEvent *event)
@@ -65,16 +84,16 @@ void ImageArea::mouseMoveEvent(QMouseEvent *event)
     int curX = event->pos().x();
     int curY = event->pos().y();
 
-    if (activeFrame_ == nullptr) {
+    if (state == 0) {
         int ind = findFrame(curX, curY);
 
         if (ind != -1) {
-            state = computeActionAndSetCursor(curX, curY, frames_[ind]);
+            computeActionAndSetCursor(curX, curY, frames_[ind]);
         } else {
             setCursor(Qt::ArrowCursor);
         }
 
-    } else {
+    } else if (state != 0 && !img_.isNull()) {
         QPoint pos = checkBounds(event->pos());
         curX = pos.x();
         curY = pos.y();
@@ -107,7 +126,30 @@ void ImageArea::mouseMoveEvent(QMouseEvent *event)
 void ImageArea::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_UNUSED(event);
-    activeFrame_ = nullptr;
+    state = 0;
+    setCursor(Qt::ArrowCursor);
+
+    if (img_.isNull() ||
+        (activeFrame_ != nullptr && (activeFrame_->geometry().width() < 10 || activeFrame_->geometry().height() < 10))) {
+        eraseFrame(activeFrame_);
+        delete activeFrame_;
+        activeFrame_ = nullptr;
+    }
+}
+
+bool
+ImageArea::eraseFrame(Frame *frame)
+{
+    int i = 0;
+    for (; i < frames_.size(); ++i)
+        if (frames_[i] == frame)
+            break;
+
+    bool found = (i < frames_.size());
+    if (found)
+        frames_.erase(&frames_[i]);
+
+    return found;
 }
 
 int
@@ -157,20 +199,16 @@ int ImageArea::computeActionAndSetCursor(int x, int y, Frame *frame)
 
     if (deltaX > frameW / 4) {
         if (x > frameMidX) {
-            qDebug() << "E";
             dir |= Direction::E;
         } else {
-            qDebug() << "W";
             dir |= Direction::W;
         }
     }
 
     if (deltaY > frameH / 3) {
         if (y > frameMidY) {
-            qDebug() << "S";
             dir |= Direction::S;
         } else {
-            qDebug() << "N";
             dir |= Direction::N;
         }
     }
@@ -193,14 +231,12 @@ int ImageArea::computeActionAndSetCursor(int x, int y, Frame *frame)
 
     case Direction::NW:
     case Direction::SE:
-        qDebug() << "FDiag";
         action = FrameAction::XYResize;
         cursor = Qt::SizeFDiagCursor;
         break;
 
     case Direction::NE:
     case Direction::SW:
-        qDebug() << "BDiag";
         action = FrameAction::XYResize;
         cursor = Qt::SizeBDiagCursor;
         break;
@@ -211,12 +247,12 @@ int ImageArea::computeActionAndSetCursor(int x, int y, Frame *frame)
     };
 
     if (dir & Direction::N)
-        fromY_ = frameY + frameH;
+        fromY_ = frameY + frameH + 1;
     else
         fromY_ = frameY;
 
     if (dir & Direction::W)
-        fromX_ = frameX + frameW;
+        fromX_ = frameX + frameW + 1;
     else
         fromX_ = frameX;
 
@@ -228,4 +264,42 @@ int ImageArea::computeActionAndSetCursor(int x, int y, Frame *frame)
     setCursor(cursor);
 
     return action;
+}
+
+void
+ImageArea::setClass(const QString &classname)
+{
+    if (activeFrame_ == nullptr)
+        return;
+
+    activeFrame_->setClassname(classname);
+    emit frameActivated(activeFrame_);
+}
+
+void
+ImageArea::replaceFrames(const QVector<QPair<QRect, QString>> &bboxes)
+{
+    for (int i = 0; i < frames_.size(); ++i)
+        delete frames_[i];
+    frames_.clear();
+    for (const auto bbox : bboxes)
+    {
+        Frame *frame = new Frame(this, bbox.first, bbox.second);
+        frame->show();
+        frames_.push_back(frame);
+    }
+    activeFrame_ = nullptr;
+}
+
+QVector<QPair<QRect, QString>> ImageArea::getBboxes()
+{
+    QVector<QPair<QRect, QString>> result;
+    QPair<QRect, QString> elem;
+    for (Frame *frame : frames_)
+    {
+        elem.first = frame->geometry();
+        elem.second = frame->getClassname();
+        result.push_back(elem);
+    }
+    return result;
 }

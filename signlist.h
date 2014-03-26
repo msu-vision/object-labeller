@@ -9,10 +9,8 @@ class SignList : public QListWidget
 public:
     explicit SignList();
 
+    void showIcons(const QStringList &names, const QVector<QIcon> &icons);
 signals:
-
-public slots:
-    void clear();
 
 };
 

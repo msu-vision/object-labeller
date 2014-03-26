@@ -3,6 +3,10 @@
 
 #include <QWidget>
 #include <QMainWindow>
+#include <QHash>
+
+#include "imagearea.h"
+#include "signlist.h"
 
 class Application : public QWidget
 {
@@ -12,7 +16,52 @@ public:
     explicit Application(QWidget *parent = 0);
     ~Application();
 
+
+private slots:
+    void itemSelected(QListWidgetItem *item);
+    void prevImage();
+    void nextImage();
+    void openDirectory();
+    void showSuperclassIcons();
+    void showFrameClass(Frame *frame);
+    void saveBboxes();
+    void goToFirstUnlabelled();
+    void exit();
 private:
+    QString dirname_;
+    QStringList filenames_;
+    QString saveFilename_;
+    int fileInd_;
+    ImageArea *area_;
+    SignList *list_;
+
+    QLabel *label_;
+    QLabel *countLabel_;
+    QPushButton *backButton_;
+    QPushButton *prevButton_;
+    QPushButton *nextButton_;
+    QPushButton *saveButton_;
+    QPushButton *exitButton_;
+    QPushButton *unlabelledButton_;
+    void showImage();
+    void toggleButtons();
+    void loadIcons();
+    int getSuperclassInd(const QString &name);
+
+    QVector<QIcon> superclassIcons_;
+    QStringList superclassNames_;
+    QStringList superclassFileNames_;
+
+
+    QVector<QVector<QIcon>> classIcons_;
+    QVector<QStringList> classNames_;
+    QVector<QStringList> classFileNames_;
+    void showClassIcons(int ind);
+    void loadBboxes();
+
+    QHash<QString, QVector<QPair<QRect, QString>>> bboxes_;
+
+    void updateCountLabel();
 };
 
 #endif // APPLICATION_H

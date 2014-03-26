@@ -36,15 +36,21 @@ class ImageArea : public QWidget
 {
     Q_OBJECT
 public:
-    ImageArea(const QString &filename);
+    ImageArea();
     ~ImageArea();
 
 
+
+    bool openImage(const QString &filename);
+    void setClass(const QString &classname);
+    QVector<QPair<QRect, QString>> getBboxes();
+    void replaceFrames(const QVector<QPair<QRect, QString> > &bboxes);
 public slots:
     void onItemSelect(QListWidgetItem *item);
 
 signals:
     void frameAdded();
+    void frameActivated(Frame *frame);
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -67,6 +73,7 @@ private:
 
     QPoint checkBounds(QPoint pos);
     int computeActionAndSetCursor(int x, int y, Frame *frame);
+    bool eraseFrame(Frame *frame);
 };
 
 

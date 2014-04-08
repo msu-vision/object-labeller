@@ -15,8 +15,14 @@ using std::max;
 #include "application.h"
 #include "signlist.h"
 
-Application::Application(QWidget *parent) :
-    QWidget(parent), superclassFileNames_(), superclassIcons_(), fileInd_(0)
+Application::Application(QWidget *parent_) :
+    QWidget(parent_), classIcons_(), classNames_(), classFileNames_(),
+    dirname_(), filenames_(), saveFilename_(), fileInd_(0),
+    area_(nullptr), list_(nullptr), label_(nullptr), countLabel_(nullptr),
+    backButton_(nullptr), prevButton_(nullptr), nextButton_(nullptr),
+    saveButton_(nullptr), exitButton_(nullptr), unlabelledButton_(nullptr),
+    nextShortcut_(nullptr), prevShortcut_(nullptr), superclassIcons_(),
+    superclassNames_(), superclassFileNames_()
 {
     loadIcons();
 
@@ -109,7 +115,17 @@ Application::Application(QWidget *parent) :
     connect(area_, SIGNAL(frameActivated(Frame *)), this, SLOT(showFrameClass(Frame *)));
     connect(backButton_, SIGNAL(clicked()), this, SLOT(showSuperclassIcons()));
     connect(nextButton_, SIGNAL(clicked()), this, SLOT(nextImage()));
+
+    nextShortcut_ = new QShortcut(QKeySequence("PgDown"), this);
+    connect(nextShortcut_, SIGNAL(activated()), this, SLOT(nextImage()));
+    nextShortcut_->setEnabled(false);
+
     connect(prevButton_, SIGNAL(clicked()), this, SLOT(prevImage()));
+
+    prevShortcut_ = new QShortcut(QKeySequence("PgUp"), this);
+    connect(prevShortcut_, SIGNAL(activated()), this, SLOT(prevImage()));
+    prevShortcut_->setEnabled(false);
+
     connect(unlabelledButton_, SIGNAL(clicked()), this, SLOT(goToFirstUnlabelled()));
     connect(exitButton_, SIGNAL(clicked()), this, SLOT(exit()));
     connect(saveButton_, SIGNAL(clicked()), this, SLOT(saveBboxes()));
@@ -235,6 +251,8 @@ Application::openDirectory()
     updateCountLabel();
     toggleButtons();
     saveButton_->setEnabled(true);
+    nextShortcut_->setEnabled(true);
+    prevShortcut_->setEnabled(true);
     unlabelledButton_->setEnabled(true);
     loadBboxes();
     showImage();

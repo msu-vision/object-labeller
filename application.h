@@ -28,6 +28,10 @@ private slots:
     void goToFirstUnlabelled();
     void exit();
 private:
+    QVector<QVector<QIcon>> classIcons_;
+    QVector<QStringList> classNames_;
+    QVector<QStringList> classFileNames_;
+
     QString dirname_;
     QStringList filenames_;
     QString saveFilename_;
@@ -43,19 +47,20 @@ private:
     QPushButton *saveButton_;
     QPushButton *exitButton_;
     QPushButton *unlabelledButton_;
+    QShortcut *nextShortcut_;
+    QShortcut *prevShortcut_;
+    QVector<QIcon> superclassIcons_;
+    QStringList superclassNames_;
+    QStringList superclassFileNames_;
     void showImage();
     void toggleButtons();
     void loadIcons();
     int getSuperclassInd(const QString &name);
 
-    QVector<QIcon> superclassIcons_;
-    QStringList superclassNames_;
-    QStringList superclassFileNames_;
 
 
-    QVector<QVector<QIcon>> classIcons_;
-    QVector<QStringList> classNames_;
-    QVector<QStringList> classFileNames_;
+
+
     void showClassIcons(int ind);
     void loadBboxes();
 

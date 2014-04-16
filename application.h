@@ -48,7 +48,9 @@ private:
     QPushButton *exitButton_;
     QPushButton *unlabelledButton_;
     QShortcut *nextShortcut_;
+    QShortcut *nextShortcut2_;
     QShortcut *prevShortcut_;
+    QShortcut *prevShortcut2_;
     QVector<QIcon> superclassIcons_;
     QStringList superclassNames_;
     QStringList superclassFileNames_;
@@ -56,10 +58,6 @@ private:
     void toggleButtons();
     void loadIcons();
     int getSuperclassInd(const QString &name);
-
-
-
-
 
     void showClassIcons(int ind);
     void loadBboxes();

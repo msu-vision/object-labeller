@@ -120,11 +120,19 @@ Application::Application(QWidget *parent_) :
     connect(nextShortcut_, SIGNAL(activated()), this, SLOT(nextImage()));
     nextShortcut_->setEnabled(false);
 
+    nextShortcut2_ = new QShortcut(QKeySequence("Right"), this);
+    connect(nextShortcut2_, SIGNAL(activated()), this, SLOT(nextImage()));
+    nextShortcut2_->setEnabled(false);
+
     connect(prevButton_, SIGNAL(clicked()), this, SLOT(prevImage()));
 
     prevShortcut_ = new QShortcut(QKeySequence("PgUp"), this);
     connect(prevShortcut_, SIGNAL(activated()), this, SLOT(prevImage()));
     prevShortcut_->setEnabled(false);
+
+    prevShortcut2_ = new QShortcut(QKeySequence("Left"), this);
+    connect(prevShortcut2_, SIGNAL(activated()), this, SLOT(prevImage()));
+    prevShortcut2_->setEnabled(false);
 
     connect(unlabelledButton_, SIGNAL(clicked()), this, SLOT(goToFirstUnlabelled()));
     connect(exitButton_, SIGNAL(clicked()), this, SLOT(exit()));
@@ -252,7 +260,9 @@ Application::openDirectory()
     toggleButtons();
     saveButton_->setEnabled(true);
     nextShortcut_->setEnabled(true);
+    nextShortcut2_->setEnabled(true);
     prevShortcut_->setEnabled(true);
+    prevShortcut2_->setEnabled(true);
     unlabelledButton_->setEnabled(true);
     loadBboxes();
     showImage();

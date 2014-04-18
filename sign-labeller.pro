@@ -10,12 +10,10 @@ QMAKE_CXXFLAGS += -std=c++11
 SOURCES += main.cpp\
     application.cpp \
     imagearea.cpp \
-    signlist.cpp \
     frame.cpp
 
 HEADERS += application.h \
     imagearea.h \
-    signlist.h \
     frame.h
 
 FORMS +=

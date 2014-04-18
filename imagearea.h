@@ -46,8 +46,8 @@ public:
 
     bool openImage(const QString &filename);
     void setClass(const QString &classname);
-    QVector<QPair<QRect, QString>> getBboxes();
-    void replaceFrames(const QVector<QPair<QRect, QString> > &bboxes);
+    QVector<QPair<QRect, int>> getBboxes();
+    void replaceFrames(const QVector<QPair<QRect, int> > &bboxes);
 public slots:
     void onItemSelect(QListWidgetItem *item);
 
@@ -73,6 +73,8 @@ private:
 
     int posX_;
     int posY_;
+
+    int frameId_;
 
     QPoint checkBounds(QPoint pos);
     int computeActionAndSetCursor(int x, int y, Frame *frame);

@@ -4,7 +4,9 @@
 using std::max;
 using std::min;
 
-ImageArea::ImageArea() : activeFrame_(nullptr), state(0)
+#include <QLabel>
+
+ImageArea::ImageArea() : activeFrame_(nullptr), state(0), frameId_(0)
 {
     setMouseTracking(true);
 }
@@ -48,6 +50,8 @@ void ImageArea::mousePressEvent(QMouseEvent *event)
         if (activeFrame_ == frames_[ind])
             activeFrame_ = nullptr;
 
+        if (frames_[ind]->getId() == frameId_ - 1)
+            frameId_--;
         delete frames_[ind];
         frames_.erase(&frames_[ind]);
     } else if (event->button() == Qt::LeftButton) {
@@ -55,7 +59,7 @@ void ImageArea::mousePressEvent(QMouseEvent *event)
             activeFrame_->deactivate();
 
         if (ind == -1) {
-            activeFrame_ = new Frame(this);
+            activeFrame_ = new Frame(this, frameId_++);
             activeFrame_->setGeometry(curX, curY, 0, 0);
             activeFrame_->show();
 
@@ -131,6 +135,9 @@ void ImageArea::mouseReleaseEvent(QMouseEvent *event)
 
     if (img_.isNull() ||
         (activeFrame_ != nullptr && (activeFrame_->geometry().width() < 10 || activeFrame_->geometry().height() < 10))) {
+        if (activeFrame_->getId() == frameId_ - 1)
+            frameId_--;
+
         eraseFrame(activeFrame_);
         delete activeFrame_;
         activeFrame_ = nullptr;
@@ -267,38 +274,28 @@ int ImageArea::computeActionAndSetCursor(int x, int y, Frame *frame)
 }
 
 void
-ImageArea::setClass(const QString &classname)
-{
-    if (activeFrame_ == nullptr)
-        return;
-
-    activeFrame_->setClassname(classname);
-    emit frameActivated(activeFrame_);
-}
-
-void
-ImageArea::replaceFrames(const QVector<QPair<QRect, QString>> &bboxes)
+ImageArea::replaceFrames(const QVector<QPair<QRect, int>> &bboxes)
 {
     for (int i = 0; i < frames_.size(); ++i)
         delete frames_[i];
     frames_.clear();
     for (const auto bbox : bboxes)
     {
-        Frame *frame = new Frame(this, bbox.first, bbox.second);
+        Frame *frame = new Frame(this, bbox.second, bbox.first);
         frame->show();
         frames_.push_back(frame);
     }
     activeFrame_ = nullptr;
 }
 
-QVector<QPair<QRect, QString>> ImageArea::getBboxes()
+QVector<QPair<QRect, int>> ImageArea::getBboxes()
 {
-    QVector<QPair<QRect, QString>> result;
-    QPair<QRect, QString> elem;
+    QVector<QPair<QRect, int>> result;
+    QPair<QRect, int> elem;
     for (Frame *frame : frames_)
     {
         elem.first = frame->geometry();
-        elem.second = frame->getClassname();
+        elem.second = frame->getId();
         result.push_back(elem);
     }
     return result;

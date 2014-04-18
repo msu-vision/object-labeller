@@ -3,19 +3,22 @@
 #include <QPainter>
 #include <QPen>
 #include <QPaintEvent>
+#include <QDebug>
+#include <QLabel>
 
-Frame::Frame(QWidget *parent) : QRubberBand(QRubberBand::Rectangle, parent), color_(Qt::red), classChosen(false)
+Frame::Frame(QWidget *parent, int id) : QRubberBand(QRubberBand::Rectangle, parent), color_(Qt::red), idLabel_(nullptr), id_(id)
 {
+    idLabel_ = new QLabel(QString::number(id), parent);
+    idLabel_->setFont(QFont("Sans", 12, QFont::Bold));
+    setColor(color_);
 }
 
-Frame::Frame(QWidget *parent, const QRect &r, const QString &classname) :
-    QRubberBand(QRubberBand::Rectangle, parent), color_(Qt::red), classChosen(false)
+Frame::Frame(QWidget *parent, int id, const QRect &r) :
+    QRubberBand(QRubberBand::Rectangle, parent), color_(Qt::red), idLabel_(nullptr), id_(id)
 {
+    idLabel_ = new QLabel(QString::number(id), parent);
     setGeometry(r);
-    if (classname != "")
-    {
-        setClassname(classname);
-    }
+    setColor(color_);
 }
 
 void
@@ -31,31 +34,48 @@ Frame::paintEvent(QPaintEvent *event)
     painter.end();
 }
 
+int Frame::getId() const
+{
+    return id_;
+}
+
+void Frame::setColor(const QColor &color)
+{
+    color_ = color;
+    QPalette palette = idLabel_->palette();
+    palette.setColor(idLabel_->foregroundRole(), color_);
+    idLabel_->setPalette(palette);
+}
+
 void
 Frame::activate()
 {
-    color_ = Qt::green;
+    setColor(Qt::green);
     update();
 }
 
-void
-Frame::deactivate()
+void Frame::setGeometry(const QRect &r)
 {
-    if (!classChosen)
-        color_ = Qt::red;
-    else
-        color_ = Qt::blue;
+    setGeometry(r.x(), r.y(), r.width(), r.height());
+}
+
+void Frame::setGeometry(int x, int y, int w, int h)
+{
+    QRubberBand::setGeometry(x, y, w, h);
+    if (w > 10 && h > 10) {
+        idLabel_->show();
+        idLabel_->move(x + 2, y);
+    }
+}
+
+void Frame::deactivate()
+{
+    setColor(Qt::red);
     update();
 }
 
-void Frame::setClassname(const QString &classname)
+Frame::~Frame()
 {
-    classname_ = classname;
-    color_ = Qt::blue;
-    classChosen = true;
-}
-
-QString Frame::getClassname()
-{
-    return classname_;
+    idLabel_->setParent(nullptr);
+    delete idLabel_;
 }

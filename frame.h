@@ -3,25 +3,32 @@
 
 #include <QRubberBand>
 #include <QColor>
+#include <QLabel>
 
 class Frame : public QRubberBand
 {
     Q_OBJECT
 public:
-    explicit Frame(QWidget *parent);
+    Frame(QWidget *parent, int id);
+    Frame(QWidget *parent, int id, const QRect &r);
+    ~Frame();
 
     void activate();
     void deactivate();
-    void chooseClass();
-    void setClassname(const QString &classname);
-    QString getClassname();
-    Frame(QWidget *parent, const QRect &r, const QString &classname);
+
+    void setGeometry(const QRect &r);
+    void setGeometry(int x, int y, int w, int h);
+
+    int getId() const;
+
+    void setColor(const QColor &color);
+
 protected:
     void paintEvent(QPaintEvent *event);
 private:
     QColor color_;
-    bool classChosen;
-    QString classname_;
+    QLabel *idLabel_;
+    int id_;
 };
 
 #endif // FRAME_H

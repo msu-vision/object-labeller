@@ -21,8 +21,9 @@ private slots:
     void nextImage();
     void openDirectory();
     void saveBboxes();
+    void goToImageDialog();
 private:
-
+    void goToImage(int number);
     QString dirname_;
     QStringList filenames_;
     QString saveFilename_;

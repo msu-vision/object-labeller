@@ -5,6 +5,7 @@
 #include <QScrollArea>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QInputDialog>
 
 #include <cstdlib>
 
@@ -41,7 +42,7 @@ Application::Application(QWidget *parent_) :
 
     countLabel_ = new QLabel("");
     countLabel_->setAlignment(Qt::AlignCenter);
-    countLabel_->setFixedWidth(50);
+    countLabel_->setFixedWidth(100);
     buttonsLayout->addWidget(countLabel_);
 
     nextButton_ = new QPushButton("Next image");
@@ -81,8 +82,22 @@ Application::Application(QWidget *parent_) :
     connect(prevShortcut2_, SIGNAL(activated()), this, SLOT(prevImage()));
     prevShortcut2_->setEnabled(false);
 
+    QShortcut *goTo = new QShortcut(QKeySequence("G"), this);
+    connect(goTo, SIGNAL(activated()), this, SLOT(goToImageDialog()));
+
     showMaximized();
 
+}
+
+void
+Application::goToImageDialog()
+{
+    bool ok;
+    int frame_number = QInputDialog::getInt(this,
+        "Input frame number", "Frame number:", 1, 1,
+        filenames_.size(), 1, &ok);
+    if (ok)
+        goToImage(frame_number);
 }
 
 Application::~Application()
@@ -127,6 +142,8 @@ Application::showImage()
     }
     if (bboxes_.contains(filenames_[fileInd_]))
         area_->replaceFrames(bboxes_[filenames_[fileInd_]]);
+    else
+        area_->replaceFrames(QVector<QPair<QRect, int>>());
 }
 
 void
@@ -145,19 +162,19 @@ Application::updateCountLabel()
 void
 Application::nextImage()
 {
-    saveBboxes();
-    fileInd_ = min(fileInd_ + 1, filenames_.size() - 1);
-    updateCountLabel();
-    toggleButtons();
-    showImage();
-
+    goToImage(fileInd_ + 1);
 }
 
 void
 Application::prevImage()
 {
+    goToImage(fileInd_ - 1);
+}
+
+void Application::goToImage(int number)
+{
     saveBboxes();
-    fileInd_ = max(fileInd_ - 1, 0);
+    fileInd_ = min(max(number, 0), filenames_.size() - 1);
     updateCountLabel();
     toggleButtons();
     showImage();

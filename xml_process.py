@@ -5,7 +5,7 @@ from os.path import dirname
 from xml.etree.ElementTree import parse
 
 if len(argv) != 2:
-    stdout.write('Usage: %s labelling_path' % argv[0])
+    stdout.write('Usage: %s labelling_path\n' % argv[0])
     exit(1)
 
 labelling_path = argv[1]

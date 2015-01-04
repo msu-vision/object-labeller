@@ -217,7 +217,11 @@ Application::loadBboxes()
     int x, y, h, w;
     while (!fhandle.atEnd())
     {
-        fhandle >> key >> x >> y >> w >> h >> id;
+        fhandle >> key;
+        if (fhandle.atEnd()) {
+            break;
+        }
+        fhandle >> x >> y >> w >> h >> id;
         bboxes_[key].push_back(QPair<QRect, int>(QRect(x, y, w, h), id));
     }
 

@@ -9,4 +9,4 @@ release:
 .PHONY: clean
 
 clean:
-	@rm -f moc_* *.o sign-labeller build.make
+	@rm -f moc_* *.o object-labeller build.make

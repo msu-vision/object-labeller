@@ -77,5 +77,4 @@ void Frame::deactivate()
 Frame::~Frame()
 {
     idLabel_->setParent(nullptr);
-    delete idLabel_;
 }

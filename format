@@ -1,0 +1,6 @@
+#!/bin/bash
+
+for filename in *.h *.cpp; do
+    clang-format -style=Google $filename > $filename.tmp
+    mv $filename.tmp $filename
+done

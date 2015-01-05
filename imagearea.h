@@ -48,6 +48,7 @@ public:
     void setClass(const QString &classname);
     QVector<QPair<QRect, int>> getBboxes();
     void replaceFrames(const QVector<QPair<QRect, int> > &bboxes);
+    void setFrameId(int id);
 public slots:
     void onItemSelect(QListWidgetItem *item);
 

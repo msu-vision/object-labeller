@@ -274,6 +274,12 @@ int ImageArea::computeActionAndSetCursor(int x, int y, Frame *frame)
 }
 
 void
+ImageArea::setFrameId(int id)
+{
+    frameId_ = id;
+}
+
+void
 ImageArea::replaceFrames(const QVector<QPair<QRect, int>> &bboxes)
 {
     for (int i = 0; i < frames_.size(); ++i)

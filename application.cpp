@@ -213,8 +213,9 @@ Application::loadBboxes()
 
     QTextStream fhandle(&file);
     QString key;
-    int id;
+    int id, max_id = -1;
     int x, y, h, w;
+    bboxes_.clear();
     while (!fhandle.atEnd())
     {
         fhandle >> key;
@@ -223,6 +224,8 @@ Application::loadBboxes()
         }
         fhandle >> x >> y >> w >> h >> id;
         bboxes_[key].push_back(QPair<QRect, int>(QRect(x, y, w, h), id));
+        max_id = max(max_id, id);
     }
-
+    if (max_id != -1)
+        area_->setFrameId(max_id + 1);
 }

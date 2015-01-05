@@ -7,43 +7,43 @@
 
 #include "imagearea.h"
 
-class Application : public QWidget
-{
-    Q_OBJECT
+class Application : public QWidget {
+  Q_OBJECT
 
-public:
-    explicit Application(QWidget *parent = 0);
-    ~Application();
+ public:
+  explicit Application(QWidget *parent = 0);
+  ~Application();
 
+ private
+slots:
+  void prevImage();
+  void nextImage();
+  void openDirectory();
+  void saveBboxes();
+  void goToImageDialog();
 
-private slots:
-    void prevImage();
-    void nextImage();
-    void openDirectory();
-    void saveBboxes();
-    void goToImageDialog();
-private:
-    void goToImage(int number);
-    QString dirname_;
-    QStringList filenames_;
-    QString saveFilename_;
-    int fileInd_;
-    ImageArea *area_;
+ private:
+  void goToImage(int number);
+  QString dirname_;
+  QStringList filenames_;
+  QString saveFilename_;
+  int fileInd_;
+  ImageArea *area_;
 
-    QLabel *countLabel_;
-    QPushButton *prevButton_;
-    QPushButton *nextButton_;
-    QShortcut *nextShortcut_;
-    QShortcut *nextShortcut2_;
-    QShortcut *prevShortcut_;
-    QShortcut *prevShortcut2_;
-    void showImage();
-    void toggleButtons();
-    void loadBboxes();
+  QLabel *countLabel_;
+  QPushButton *prevButton_;
+  QPushButton *nextButton_;
+  QShortcut *nextShortcut_;
+  QShortcut *nextShortcut2_;
+  QShortcut *prevShortcut_;
+  QShortcut *prevShortcut2_;
+  void showImage();
+  void toggleButtons();
+  void loadBboxes();
 
-    QHash<QString, QVector<QPair<QRect, int>>> bboxes_;
+  QHash<QString, QVector<QPair<QRect, int>>> bboxes_;
 
-    void updateCountLabel();
+  void updateCountLabel();
 };
 
-#endif // APPLICATION_H
+#endif  // APPLICATION_H

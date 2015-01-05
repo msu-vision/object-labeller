@@ -52,7 +52,7 @@ void ImageArea::mousePressEvent(QMouseEvent *event)
 
         if (frames_[ind]->getId() == frameId_ - 1)
             frameId_--;
-        delete frames_[ind];
+        frames_[ind]->deleteLater();
         frames_.erase(&frames_[ind]);
     } else if (event->button() == Qt::LeftButton) {
         if (activeFrame_ != nullptr)

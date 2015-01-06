@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := release
 
-QPROJECT=sign-labeller.pro
+QPROJECT=object-labeller.pro
 
 release:
 	qmake -o build.make $(QPROJECT)

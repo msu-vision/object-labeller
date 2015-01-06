@@ -33,6 +33,13 @@ void ImageArea::onItemSelect(QListWidgetItem *item) {
   qDebug() << item->text();
 }
 
+void ImageArea::addFrame(const QRect &r, int id) {
+  Frame *f = new Frame(this, id);
+  f->setGeometry(r);
+  f->show();
+  frames_.push_back(f);
+}
+
 void ImageArea::mousePressEvent(QMouseEvent *event) {
   int curX = event->pos().x();
   int curY = event->pos().y();

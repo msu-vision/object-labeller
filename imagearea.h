@@ -43,6 +43,7 @@ class ImageArea : public QWidget {
   QVector<QPair<QRect, int>> getBboxes();
   void replaceFrames(const QVector<QPair<QRect, int>> &bboxes);
   void setFrameId(int id);
+  void addFrame(const QRect &r, int id);
  public
 slots:
   void onItemSelect(QListWidgetItem *item);

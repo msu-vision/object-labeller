@@ -91,6 +91,9 @@ Application::Application(QWidget *parent_)
   QShortcut *goTo = new QShortcut(QKeySequence("G"), this);
   connect(goTo, SIGNAL(activated()), this, SLOT(goToImageDialog()));
 
+  QShortcut *addBb = new QShortcut(QKeySequence("a"), this);
+  connect(addBb, SIGNAL(activated()), this, SLOT(addBboxes()));
+
   showMaximized();
 }
 
@@ -137,10 +140,30 @@ void Application::showImage() {
                          "File " + filename + " can't be opened");
     return;
   }
-  if (bboxes_.contains(filenames_[fileInd_]))
+  if (bboxes_.contains(filenames_[fileInd_])) {
     area_->replaceFrames(bboxes_[filenames_[fileInd_]]);
-  else
+  } else {
     area_->replaceFrames(QVector<QPair<QRect, int>>());
+  }
+}
+
+void Application::addBboxes() {
+  const auto &cur_bboxes = area_->getBboxes();
+  const auto &prev_bboxes = bboxes_[filenames_[fileInd_ - 1]];
+
+  for (const auto &bbox : prev_bboxes) {
+    int prev_id = bbox.second;
+    bool add = true;
+    for (const auto &cur_bbox : cur_bboxes) {
+      if (cur_bbox.second == prev_id) {
+        add = false;
+        break;
+      }
+    }
+    if (add) {
+      area_->addFrame(bbox.first, bbox.second);
+    }
+  }
 }
 
 void Application::toggleButtons() {

@@ -21,6 +21,7 @@ slots:
   void openDirectory();
   void saveBboxes();
   void goToImageDialog();
+  void addBboxes();
 
  private:
   void goToImage(int number);

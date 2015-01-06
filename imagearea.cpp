@@ -5,6 +5,7 @@ using std::max;
 using std::min;
 
 #include <QLabel>
+#include <QInputDialog>
 
 ImageArea::ImageArea() : activeFrame_(nullptr), state(0), frameId_(0) {
   setMouseTracking(true);
@@ -67,7 +68,10 @@ void ImageArea::mousePressEvent(QMouseEvent *event) {
     activeFrame_->activate();
     emit frameActivated(activeFrame_);
   } else if (event->button() == Qt::MidButton) {
-    qDebug() << frames_.size();
+    int newId = QInputDialog::getInt(this, "Input new bbox id", "Bbox id:",
+                                     frames_[ind]->getId());
+    frames_[ind]->setId(newId);
+    frames_[ind]->repaint();
   }
 }
 

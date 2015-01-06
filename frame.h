@@ -19,6 +19,7 @@ class Frame : public QRubberBand {
   void setGeometry(int x, int y, int w, int h);
 
   int getId() const;
+  void setId(int newId);
 
   void setColor(const QColor &color);
 

@@ -39,6 +39,11 @@ void Frame::paintEvent(QPaintEvent *event) {
 
 int Frame::getId() const { return id_; }
 
+void Frame::setId(int newId) {
+  id_ = newId;
+  idLabel_->setText(QString::number(id_));
+}
+
 void Frame::setColor(const QColor &color) {
   color_ = color;
   QPalette palette = idLabel_->palette();

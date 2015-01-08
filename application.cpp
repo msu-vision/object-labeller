@@ -115,20 +115,15 @@ void Application::openDirectory() {
   if (dirname_ == "") return;
 
   QDir directory(dirname_);
-  filenames_ = directory.entryList({"*.jpg"});
-  if (filenames_.size() == 0) {
-    QMessageBox::warning(this, "No images", "No JPG images found");
-    return;
-  }
   saveFilename_ = dirname_ + "/labelling.txt";
   fileInd_ = 0;
+  loadBboxes();
   updateCountLabel();
   toggleButtons();
   nextShortcut_->setEnabled(true);
   nextShortcut2_->setEnabled(true);
   prevShortcut_->setEnabled(true);
   prevShortcut2_->setEnabled(true);
-  loadBboxes();
   showImage();
 }
 
@@ -140,16 +135,12 @@ void Application::showImage() {
                          "File " + filename + " can't be opened");
     return;
   }
-  if (bboxes_.contains(filenames_[fileInd_])) {
-    area_->replaceFrames(bboxes_[filenames_[fileInd_]]);
-  } else {
-    area_->replaceFrames(QVector<QPair<QRect, int>>());
-  }
+  area_->replaceFrames(bboxes_[fileInd_]);
 }
 
 void Application::addBboxes() {
   const auto &cur_bboxes = area_->getBboxes();
-  const auto &prev_bboxes = bboxes_[filenames_[fileInd_ - 1]];
+  const auto &prev_bboxes = bboxes_[fileInd_ - 1];
 
   for (const auto &bbox : prev_bboxes) {
     int prev_id = bbox.second;
@@ -197,13 +188,16 @@ void Application::saveBboxes() {
     return;
   }
 
-  bboxes_[filenames_[fileInd_]] = area_->getBboxes();
+  bboxes_[fileInd_] = area_->getBboxes();
   QTextStream fhandle(&file);
-  for (const auto &key : bboxes_.keys()) {
-    for (const auto &frame : bboxes_[key]) {
-      fhandle << key << " " << frame.first.x() << " " << frame.first.y() << " "
-              << frame.first.width() << " " << frame.first.height() << " ";
-      fhandle << frame.second << endl;
+  for (int i = 0; i < filenames_.size(); ++i) {
+    const auto &filename = filenames_[i];
+    for (const auto &frame : bboxes_[i]) {
+
+      fhandle << filename << " "
+              << frame.first.x() << " " << frame.first.y() << " "
+              << frame.first.width() << " " << frame.first.height() << " "
+              << frame.second << endl;
     }
   }
 }
@@ -215,18 +209,27 @@ void Application::loadBboxes() {
   }
 
   QTextStream fhandle(&file);
-  QString key;
+  QString filename = "f", prev_filename = "";
+  filenames_.clear();
   int id, max_id = -1;
   int x, y, h, w;
   bboxes_.clear();
+  int cur_i = -1;
   while (!fhandle.atEnd()) {
-    fhandle >> key;
+    fhandle >> filename;
     if (fhandle.atEnd()) {
       break;
     }
+    if (filename != prev_filename) {
+        cur_i++;
+        filenames_.push_back(filename);
+        bboxes_.push_back(QVector<QPair<QRect, int>>());
+    }
+
     fhandle >> x >> y >> w >> h >> id;
-    bboxes_[key].push_back(QPair<QRect, int>(QRect(x, y, w, h), id));
+    bboxes_[cur_i].push_back(QPair<QRect, int>(QRect(x, y, w, h), id));
     max_id = max(max_id, id);
+    prev_filename = filename;
   }
   if (max_id != -1) area_->setFrameId(max_id + 1);
 }

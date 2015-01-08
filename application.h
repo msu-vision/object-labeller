@@ -42,7 +42,7 @@ slots:
   void toggleButtons();
   void loadBboxes();
 
-  QHash<QString, QVector<QPair<QRect, int>>> bboxes_;
+  QVector<QVector<QPair<QRect, int>>> bboxes_;
 
   void updateCountLabel();
 };
